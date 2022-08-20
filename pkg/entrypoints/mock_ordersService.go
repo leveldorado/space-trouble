@@ -71,11 +71,11 @@ func (_m *mockOrdersService) Get(ctx context.Context, id string) (types.Order, e
 }
 
 // List provides a mock function with given fields: ctx, limit, offset
-func (_m *mockOrdersService) List(ctx context.Context, limit int64, offset int64) ([]types.Order, error) {
+func (_m *mockOrdersService) List(ctx context.Context, limit int, offset int) ([]types.Order, error) {
 	ret := _m.Called(ctx, limit, offset)
 
 	var r0 []types.Order
-	if rf, ok := ret.Get(0).(func(context.Context, int64, int64) []types.Order); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int, int) []types.Order); ok {
 		r0 = rf(ctx, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
@@ -84,7 +84,7 @@ func (_m *mockOrdersService) List(ctx context.Context, limit int64, offset int64
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, int64, int64) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
 		r1 = rf(ctx, limit, offset)
 	} else {
 		r1 = ret.Error(1)

@@ -1,11 +1,12 @@
 package types
 
 import (
+	"testing"
+	"time"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestOrder_Validate(t *testing.T) {

@@ -23,3 +23,9 @@ type ErrFlightImpossible struct{}
 func (ErrFlightImpossible) Error() string {
 	return "flight impossible for provided date and launchpad"
 }
+
+type ErrNotFound struct{}
+
+func (ErrNotFound) Error() string {
+	return "not found"
+}

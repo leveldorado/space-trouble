@@ -10,6 +10,15 @@ type Launch struct {
 }
 
 type Launchpad struct {
-	ID       string `json:"id"`
-	FullName string `json:"full_name"`
+	ID       string         `json:"id"`
+	FullName string         `json:"full_name"`
+	Location *time.Location `json:"location"`
+}
+
+type LaunchpadFirstDestination struct {
+	LaunchpadID   string `json:"launchpad_id"`
+	DestinationID string `json:"destination_id"`
+	LocalYear     int    `json:"local_year"`
+	LocalMonth    int    `json:"local_month"`
+	LocalDay      int    `json:"local_day"`
 }

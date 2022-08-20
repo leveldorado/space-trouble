@@ -1,6 +1,9 @@
 package types
 
-import "time"
+import (
+	"github.com/pkg/errors"
+	"time"
+)
 
 type Order struct {
 	ID            string    `json:"id"`
@@ -11,6 +14,25 @@ type Order struct {
 	LaunchpadID   string    `json:"launchpad_id"`
 	DestinationID string    `json:"destination_id"`
 	LaunchDate    time.Time `json:"launch_date"`
+}
+
+func (o Order) Validate() error {
+	if o.FirstName == "" {
+		return errors.New("first_name is required")
+	}
+	if o.LastName == "" {
+		return errors.New("last_name is required")
+	}
+	if o.Birthday.IsZero() {
+		return errors.New("birthday is required")
+	}
+	if o.LaunchpadID == "" {
+		return errors.New("launchpad_id is required")
+	}
+	if o.DestinationID == "" {
+		return errors.New("destination_id is required")
+	}
+	return nil
 }
 
 type Destination struct {

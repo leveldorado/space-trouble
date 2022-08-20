@@ -17,7 +17,7 @@ import (
 type ordersService interface {
 	Create(ctx context.Context, o types.Order) (string, error)
 	Get(ctx context.Context, id string) (types.Order, error)
-	List(ctx context.Context, limit, offset int64) ([]types.Order, error)
+	List(ctx context.Context, limit, offset int) ([]types.Order, error)
 	Delete(ctx context.Context, id string) error
 }
 

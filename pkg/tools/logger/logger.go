@@ -22,6 +22,9 @@ func (requestIDHook) Fire(e *logrus.Entry) error {
 	if requestID == "" {
 		return nil
 	}
-	e = e.WithField("request_id", requestID)
+	if e.Data == nil {
+		e.Data = logrus.Fields{}
+	}
+	e.Data["request_id"] = requestID
 	return nil
 }

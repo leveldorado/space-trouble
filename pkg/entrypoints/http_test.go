@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/leveldorado/space-trouble/pkg/tools/logger"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/google/uuid"
 	"github.com/leveldorado/space-trouble/pkg/types"
@@ -87,7 +89,7 @@ func TestCreateOrderFails(t *testing.T) {
 		s.On("Create", mock.Anything, order).Return("", err)
 		orders = append(orders, order)
 	}
-	h := NewHTTPEntry(s, &logrus.Logger{}).GetHandler()
+	h := NewHTTPEntry(s, logger.New()).GetHandler()
 	for i, order := range orders {
 		b := &bytes.Buffer{}
 		require.NoError(t, json.NewEncoder(b).Encode(order))

@@ -23,13 +23,16 @@ import (
 func main() {
 	log := logger.New()
 	conn := mustGetPostgresDB(log)
+	cl := &http.Client{
+		Timeout: time.Second,
+	}
 
 	s := services.NewOrders(
 		repositories.NewPostgreSQLOrdersRepo(conn, log),
-		nil,
-		nil,
-		nil,
-		nil,
+		repositories.NewSpaceXAPILaunchpadsRepo(cl),
+		repositories.NewInMemoryDestinationsRepo(),
+		repositories.NewInMemoryLaunchpadFirstDestinationRepo(),
+		repositories.NewSpaceXAPILaunchesRepo(cl),
 	)
 
 	h := entrypoints.NewHTTPEntry(s, log).GetHandler()

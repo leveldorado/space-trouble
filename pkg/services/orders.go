@@ -30,7 +30,7 @@ type launchpadFirstDestinationRepo interface {
 }
 
 type competitorLaunchesRepo interface {
-	ListByDate(ctx context.Context, launchpad string, localDate time.Time) ([]types.Launch, error)
+	CheckLaunches(ctx context.Context, launchpad string, localDate time.Time) (bool, error)
 }
 
 type Orders struct {
@@ -79,11 +79,11 @@ func (s *Orders) Create(ctx context.Context, o types.Order) (string, error) {
 	if err := s.checkLaunchpadDestination(ctx, launchpad, o); err != nil {
 		return "", err
 	}
-	launches, err := s.competitorLaunchesRepo.ListByDate(ctx, o.LaunchpadID, o.LaunchDate.In(launchpad.Location))
+	exists, err := s.competitorLaunchesRepo.CheckLaunches(ctx, o.LaunchpadID, o.LaunchDate.In(launchpad.Location))
 	if err != nil {
 		return "", errors.Wrapf(err, `failed to list competitor launches by date: launchpad - %s, date - %s`, o.LaunchDate, o.LaunchDate)
 	}
-	if len(launches) != 0 {
+	if exists {
 		return "", types.ErrFlightImpossible{}
 	}
 	o.ID = uuid.New().String()

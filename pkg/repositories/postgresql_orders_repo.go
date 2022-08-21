@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS "%s"  (
     id             uuid,
     customer_id    uuid,
     launchpad_id   text,
-    destination_id uuid,
+    destination_id text,
     launch_date    timestamp with time zone,
     created_at     timestamp,
     PRIMARY KEY(id)

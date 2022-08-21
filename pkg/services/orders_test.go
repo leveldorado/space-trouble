@@ -5,11 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/mock"
-
 	"github.com/brianvoe/gofakeit"
 	"github.com/google/uuid"
 	"github.com/leveldorado/space-trouble/pkg/types"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -65,6 +64,7 @@ func prepareOrder(t *testing.T, lID, dID string, launchDate time.Time) (types.Or
 		Return(func(ctx context.Context, doc types.Order) error {
 			doc.ID = ""
 			o.LaunchDate = o.LaunchDate.UTC()
+			o.CreatedAt = doc.CreatedAt
 			require.Equal(t, o, doc)
 			return nil
 		})

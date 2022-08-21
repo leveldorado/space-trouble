@@ -75,7 +75,7 @@ func main() {
 }
 
 func mustGetPostgresDB(log logrus.FieldLogger) *sql.DB {
-	url := os.Getenv("POSTGRESQl_URL")
+	url := os.Getenv("POSTGRESQL_URL")
 	db, err := repositories.GetPostgresqlConn(url)
 	if err != nil {
 		log.WithField("err", err.Error()).Fatal("failed to obtain postgres conn")

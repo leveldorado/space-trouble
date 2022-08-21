@@ -47,7 +47,9 @@ func (e *HTTPEntry) GetHandler() http.Handler {
 			r.Get("/{id}", e.getOrder)
 			r.Delete("/{id}", e.deleteOrder)
 		})
-		r.Get("/destinations", e.destinations)
+		r.Route("/destinations", func(r chi.Router) {
+			r.Get("/", e.destinations)
+		})
 	})
 	return r
 }
@@ -143,6 +145,7 @@ func (e *HTTPEntry) respond(ctx context.Context, resp interface{}, err error, su
 		wr.WriteHeader(successCode)
 		return
 	}
+	wr.Header().Set("Content-Type", "application/json")
 	data, err := json.Marshal(resp)
 	if err != nil {
 		e.respondError(ctx, errors.Wrapf(err, `failed to marshal response`), wr)
@@ -185,6 +188,7 @@ func (e *HTTPEntry) respondError(ctx context.Context, err error, wr http.Respons
 		logEntry.Error("failed to handle request")
 	}
 	wr.WriteHeader(code)
+	wr.Header().Set("Content-Type", "application/json")
 	data, err := json.Marshal(resp)
 	if err != nil {
 		e.log.WithField("err", err.Error()).

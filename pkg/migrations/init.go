@@ -24,6 +24,17 @@ func Init(
 	if err := or.CreateTables(context.TODO()); err != nil {
 		return errors.Wrap(err, `failed to create tables`)
 	}
+	return populateLaunchpadFirstDestinations(lr, dr, fr)
+}
+
+/*
+launchpad first destination records needed as starting point of calculating destination for a date
+*/
+func populateLaunchpadFirstDestinations(
+	lr *repositories.SpaceXAPILaunchpadsRepo,
+	dr *repositories.InMemoryDestinationsRepo,
+	fr *repositories.InMemoryLaunchpadFirstDestinationRepo,
+) error {
 	launchpads, err := lr.List(context.TODO())
 	if err != nil {
 		return errors.Wrap(err, `failed to list launchpads`)

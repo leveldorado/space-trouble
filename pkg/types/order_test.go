@@ -2,7 +2,6 @@ package types
 
 import (
 	"testing"
-	"time"
 
 	"github.com/brianvoe/gofakeit"
 	"github.com/google/uuid"
@@ -16,7 +15,9 @@ func TestOrder_Validate(t *testing.T) {
 	require.Error(t, o.Validate())
 	o.LastName = gofakeit.LastName()
 	require.Error(t, o.Validate())
-	o.Birthday = time.Date(2000, 10, 11, 0, 0, 0, 0, time.UTC)
+	o.BirthdayYear = 2000
+	o.BirthdayMonth = 10
+	o.BirthdayDay = 23
 	require.Error(t, o.Validate())
 	o.LaunchpadID = uuid.New().String()
 	require.Error(t, o.Validate())

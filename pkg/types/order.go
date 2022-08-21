@@ -11,10 +11,13 @@ type Order struct {
 	FirstName     string    `json:"first_name"`
 	LastName      string    `json:"last_name"`
 	Gender        string    `json:"gender"`
-	Birthday      time.Time `json:"birthday"`
+	BirthdayYear  int       `json:"birthday_year"`
+	BirthdayMonth int       `json:"birthday_month"`
+	BirthdayDay   int       `json:"birthday_day"`
 	LaunchpadID   string    `json:"launchpad_id"`
 	DestinationID string    `json:"destination_id"`
 	LaunchDate    time.Time `json:"launch_date"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func (o Order) Validate() error {
@@ -24,8 +27,14 @@ func (o Order) Validate() error {
 	if o.LastName == "" {
 		return errors.New("last_name is required")
 	}
-	if o.Birthday.IsZero() {
-		return errors.New("birthday is required")
+	if o.BirthdayYear == 0 {
+		return errors.New("birthday year is required")
+	}
+	if o.BirthdayMonth == 0 {
+		return errors.New("birthday month is required")
+	}
+	if o.BirthdayDay == 0 {
+		return errors.New("birthday day is required")
 	}
 	if o.LaunchpadID == "" {
 		return errors.New("launchpad_id is required")

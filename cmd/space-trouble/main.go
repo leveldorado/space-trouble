@@ -1,11 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/leveldorado/space-trouble/pkg/repositories"
+	"github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
 
@@ -17,8 +21,16 @@ import (
 )
 
 func main() {
-	s := services.NewOrders()
 	log := logger.New()
+	conn := mustGetPostgresDB(log)
+
+	s := services.NewOrders(
+		repositories.NewPostgreSQLOrdersRepo(conn, log),
+		nil,
+		nil,
+		nil,
+		nil,
+	)
 
 	h := entrypoints.NewHTTPEntry(s, log).GetHandler()
 
@@ -47,4 +59,13 @@ func main() {
 		return
 	}
 	log.Info("BYE!")
+}
+
+func mustGetPostgresDB(log logrus.FieldLogger) *sql.DB {
+	url := os.Getenv("POSTGRESQl_URL")
+	db, err := repositories.GetPostgresqlConn(url)
+	if err != nil {
+		log.WithField("err", err.Error()).Fatal("failed to obtain postgres conn")
+	}
+	return db
 }

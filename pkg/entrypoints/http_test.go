@@ -26,7 +26,9 @@ func TestCreateOrderSuccess(t *testing.T) {
 		FirstName:     gofakeit.FirstName(),
 		LastName:      gofakeit.LastName(),
 		Gender:        gofakeit.Gender(),
-		Birthday:      time.Now().UTC(),
+		BirthdayYear:  1990,
+		BirthdayDay:   10,
+		BirthdayMonth: 13,
 		LaunchpadID:   uuid.New().String(),
 		DestinationID: uuid.New().String(),
 		LaunchDate:    time.Now().UTC(),
@@ -81,7 +83,9 @@ func TestCreateOrderFails(t *testing.T) {
 			FirstName:     gofakeit.FirstName(),
 			LastName:      gofakeit.LastName(),
 			Gender:        gofakeit.Gender(),
-			Birthday:      time.Now().UTC(),
+			BirthdayYear:  1990,
+			BirthdayDay:   10,
+			BirthdayMonth: 13,
 			LaunchpadID:   uuid.New().String(),
 			DestinationID: uuid.New().String(),
 			LaunchDate:    time.Now().UTC(),
@@ -108,7 +112,9 @@ func TestOrdersList(t *testing.T) {
 			FirstName:     gofakeit.FirstName(),
 			LastName:      gofakeit.LastName(),
 			Gender:        gofakeit.Gender(),
-			Birthday:      gofakeit.Date(),
+			BirthdayYear:  1990,
+			BirthdayDay:   10,
+			BirthdayMonth: 13,
 			LaunchpadID:   uuid.New().String(),
 			DestinationID: uuid.New().String(),
 			LaunchDate:    gofakeit.Date(),
@@ -116,7 +122,7 @@ func TestOrdersList(t *testing.T) {
 	}
 	limit, offset := 10, 30
 	s := &mockOrdersService{}
-	s.On("List", mock.Anything, limit, offset).Return(orders, nil)
+	s.On("ListSorted", mock.Anything, limit, offset).Return(orders, nil)
 
 	h := NewHTTPEntry(s, &logrus.Logger{}).GetHandler()
 
@@ -142,7 +148,9 @@ func TestGetOrder(t *testing.T) {
 		FirstName:     gofakeit.FirstName(),
 		LastName:      gofakeit.LastName(),
 		Gender:        gofakeit.Gender(),
-		Birthday:      gofakeit.Date(),
+		BirthdayYear:  1990,
+		BirthdayDay:   10,
+		BirthdayMonth: 13,
 		LaunchpadID:   uuid.New().String(),
 		DestinationID: uuid.New().String(),
 		LaunchDate:    gofakeit.Date(),

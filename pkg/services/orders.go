@@ -22,7 +22,7 @@ type launchpadRepo interface {
 }
 
 type destinationRepo interface {
-	List(ctx context.Context) ([]types.Destination, error)
+	ListSorted(ctx context.Context) ([]types.Destination, error)
 }
 
 type launchpadFirstDestinationRepo interface {
@@ -57,6 +57,17 @@ func NewOrders(
 	}
 }
 
+/*
+Create
+validate launchpad id and destination id
+validate if date is not in past
+
+launchpad destination on date calculates by logic
+
+		we have stored data about first destination from launchpad and date
+	    then we calculate difference in days between first launch and requested date
+	    and shift destinations by diff days in destination list (required destinations to be sorted)
+*/
 func (s *Orders) Create(ctx context.Context, o types.Order) (string, error) {
 	launchpad, err := s.launchpadRepo.Get(ctx, o.LaunchpadID)
 	if errors.As(err, &types.ErrNotFound{}) {
@@ -76,6 +87,8 @@ func (s *Orders) Create(ctx context.Context, o types.Order) (string, error) {
 		return "", types.ErrFlightImpossible{}
 	}
 	o.ID = uuid.New().String()
+	o.LaunchDate = o.LaunchDate.UTC()
+	o.CreatedAt = time.Now().UTC()
 	return o.ID, errors.Wrapf(s.orderRepo.Insert(ctx, o), `failed to insert order: o - %+v`, o)
 }
 
@@ -87,7 +100,7 @@ func (s *Orders) checkLaunchpadDestination(ctx context.Context, launchpad types.
 	if err != nil {
 		return errors.Errorf(`no first destination for launchpad: id - %s`, o.LaunchpadID)
 	}
-	destinations, err := s.destinationRepo.List(ctx)
+	destinations, err := s.destinationRepo.ListSorted(ctx)
 	if err != nil {
 		return errors.Wrap(err, `failed to get destinations`)
 	}

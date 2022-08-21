@@ -25,7 +25,7 @@ func prepareLaunchpad(t *testing.T) (types.Launchpad, *mockLaunchpadRepo) {
 	return launchpad, lr
 }
 
-func prepareDestinations(t *testing.T) ([]types.Destination, *mockDestinationRepo) {
+func prepareDestinations() ([]types.Destination, *mockDestinationRepo) {
 	destinationsN := 9
 	var destinations []types.Destination
 	for i := 0; i < destinationsN; i++ {
@@ -34,11 +34,11 @@ func prepareDestinations(t *testing.T) ([]types.Destination, *mockDestinationRep
 		})
 	}
 	dr := &mockDestinationRepo{}
-	dr.On("List", mock.Anything).Return(destinations, nil)
+	dr.On("ListSorted", mock.Anything).Return(destinations, nil)
 	return destinations, dr
 }
 
-func prepareFirstDestinationRepo(t *testing.T, lID, dID string, year, month, day int) *mockLaunchpadFirstDestinationRepo {
+func prepareFirstDestinationRepo(lID, dID string, year, month, day int) *mockLaunchpadFirstDestinationRepo {
 	firstDestination := types.LaunchpadFirstDestination{
 		LaunchpadID:   lID,
 		DestinationID: dID,
@@ -56,7 +56,6 @@ func prepareOrder(t *testing.T, lID, dID string, launchDate time.Time) (types.Or
 		FirstName:     gofakeit.FirstName(),
 		LastName:      gofakeit.LastName(),
 		Gender:        gofakeit.Gender(),
-		Birthday:      gofakeit.Date(),
 		LaunchpadID:   lID,
 		DestinationID: dID,
 		LaunchDate:    launchDate,
@@ -65,13 +64,14 @@ func prepareOrder(t *testing.T, lID, dID string, launchDate time.Time) (types.Or
 	or.On("Insert", mock.Anything, mock.Anything).
 		Return(func(ctx context.Context, doc types.Order) error {
 			doc.ID = ""
+			o.LaunchDate = o.LaunchDate.UTC()
 			require.Equal(t, o, doc)
 			return nil
 		})
 	return o, or
 }
 
-func prepareCompetitorsLaunchesRepo(t *testing.T, launchpad string, localDate time.Time) *mockCompetitorLaunchesRepo {
+func prepareCompetitorsLaunchesRepo(launchpad string, localDate time.Time) *mockCompetitorLaunchesRepo {
 	clr := &mockCompetitorLaunchesRepo{}
 	clr.On("ListByDate", mock.Anything, launchpad, localDate).Return([]types.Launch{}, nil)
 	return clr
@@ -79,15 +79,15 @@ func prepareCompetitorsLaunchesRepo(t *testing.T, launchpad string, localDate ti
 
 func TestOrders_CreateSuccess(t *testing.T) {
 	launchpad, lr := prepareLaunchpad(t)
-	destinations, dr := prepareDestinations(t)
-	lfr := prepareFirstDestinationRepo(t, launchpad.ID, destinations[0].ID, 2053, 3, 3)
+	destinations, dr := prepareDestinations()
+	lfr := prepareFirstDestinationRepo(launchpad.ID, destinations[0].ID, 2053, 3, 3)
 
 	userLocation, err := time.LoadLocation("Europe/Oslo")
 	require.NoError(t, err)
 	launchDate := time.Date(2053, 3, 5, 1, 0, 0, 0, userLocation)
 
 	o, or := prepareOrder(t, launchpad.ID, destinations[1].ID, launchDate)
-	clr := prepareCompetitorsLaunchesRepo(t, launchpad.ID, launchDate.In(launchpad.Location))
+	clr := prepareCompetitorsLaunchesRepo(launchpad.ID, launchDate.In(launchpad.Location))
 
 	s := NewOrders(or, lr, dr, lfr, clr)
 

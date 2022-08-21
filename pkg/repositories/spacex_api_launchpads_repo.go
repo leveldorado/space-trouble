@@ -65,6 +65,7 @@ func parseLaunchpad(data string) (types.Launchpad, error) {
 	pad := types.Launchpad{
 		ID:       gjson.Get(data, "id").String(),
 		FullName: gjson.Get(data, "full_name").String(),
+		Status:   gjson.Get(data, "status").String(),
 	}
 	timezone := gjson.Get(data, "timezone").String()
 	location, err := time.LoadLocation(timezone)

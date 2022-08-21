@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/leveldorado/space-trouble/pkg/types"
@@ -32,6 +33,7 @@ func (r *InMemoryLaunchpadFirstDestinationRepo) Get(_ context.Context, launchpad
 	r.RLock()
 	defer r.RUnlock()
 	doc, ok := r.launchpads[launchpad]
+	fmt.Println(r.launchpads)
 	if !ok {
 		return types.LaunchpadFirstDestination{}, types.ErrNotFound{}
 	}

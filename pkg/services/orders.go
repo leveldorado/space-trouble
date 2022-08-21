@@ -76,6 +76,9 @@ func (s *Orders) Create(ctx context.Context, o types.Order) (string, error) {
 	if err != nil {
 		return "", errors.Wrapf(err, `failed to get launchpad: id - %s`, o.LaunchpadID)
 	}
+	if launchpad.Status != types.LaunchpadStatusActive {
+		return "", types.NewErrInvalidData("launchpad status is not active")
+	}
 	if err := s.checkLaunchpadDestination(ctx, launchpad, o); err != nil {
 		return "", err
 	}
@@ -98,7 +101,7 @@ func (s *Orders) checkLaunchpadDestination(ctx context.Context, launchpad types.
 	}
 	firstDestination, err := s.launchpadFirstDestinationRepo.Get(ctx, o.LaunchpadID)
 	if err != nil {
-		return errors.Errorf(`no first destination for launchpad: id - %s`, o.LaunchpadID)
+		return errors.Wrapf(err, `failed to get first destination for launchpad: id - %s`, o.LaunchpadID)
 	}
 	destinations, err := s.destinationRepo.ListSorted(ctx)
 	if err != nil {

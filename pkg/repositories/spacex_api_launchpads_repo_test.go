@@ -28,6 +28,7 @@ func TestSpaceXAPILaunchpadsRepo_Get(t *testing.T) {
 		ID:       "5e9e4501f5090910d4566f83",
 		FullName: "Vandenberg Space Force Base Space Launch Complex 3W",
 		Location: losAngelesTimezone,
+		Status:   "retired",
 	}, pad)
 }
 

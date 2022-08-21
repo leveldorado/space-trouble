@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/google/uuid"
 	"github.com/leveldorado/space-trouble/pkg/types"
@@ -18,6 +20,7 @@ func prepareLaunchpad(t *testing.T) (types.Launchpad, *mockLaunchpadRepo) {
 	launchpad := types.Launchpad{
 		ID:       uuid.New().String(),
 		Location: launchpadLocation,
+		Status:   types.LaunchpadStatusActive,
 	}
 	lr := &mockLaunchpadRepo{}
 	lr.On("Get", mock.Anything, launchpad.ID).Return(launchpad, nil)
@@ -71,9 +74,9 @@ func prepareOrder(t *testing.T, lID, dID string, launchDate time.Time) (types.Or
 	return o, or
 }
 
-func prepareCompetitorsLaunchesRepo(launchpad string, localDate time.Time) *mockCompetitorLaunchesRepo {
+func prepareCompetitorsLaunchesRepo(launchpad string, localDate time.Time, busy bool) *mockCompetitorLaunchesRepo {
 	clr := &mockCompetitorLaunchesRepo{}
-	clr.On("CheckLaunches", mock.Anything, launchpad, localDate).Return(false, nil)
+	clr.On("CheckLaunches", mock.Anything, launchpad, localDate).Return(busy, nil)
 	return clr
 }
 
@@ -87,7 +90,7 @@ func TestOrders_CreateSuccess(t *testing.T) {
 	launchDate := time.Date(2053, 3, 5, 1, 0, 0, 0, userLocation)
 
 	o, or := prepareOrder(t, launchpad.ID, destinations[1].ID, launchDate)
-	clr := prepareCompetitorsLaunchesRepo(launchpad.ID, launchDate.In(launchpad.Location))
+	clr := prepareCompetitorsLaunchesRepo(launchpad.ID, launchDate.In(launchpad.Location), false)
 
 	s := NewOrders(or, lr, dr, lfr, clr)
 
@@ -98,5 +101,51 @@ func TestOrders_CreateSuccess(t *testing.T) {
 	dr.AssertExpectations(t)
 	lfr.AssertExpectations(t)
 	or.AssertExpectations(t)
+	clr.AssertExpectations(t)
+}
+
+func TestOrders_CreateWrongDestination(t *testing.T) {
+	launchpad, lr := prepareLaunchpad(t)
+	destinations, dr := prepareDestinations()
+	lfr := prepareFirstDestinationRepo(launchpad.ID, destinations[0].ID, 2053, 3, 3)
+
+	userLocation, err := time.LoadLocation("Europe/Oslo")
+	require.NoError(t, err)
+	launchDate := time.Date(2053, 3, 6, 1, 0, 0, 0, userLocation)
+
+	o, or := prepareOrder(t, launchpad.ID, destinations[1].ID, launchDate)
+
+	s := NewOrders(or, lr, dr, lfr, nil)
+
+	_, err = s.Create(context.TODO(), o)
+	require.Error(t, err)
+	require.True(t, errors.As(err, &types.ErrFlightImpossible{}))
+
+	lr.AssertExpectations(t)
+	dr.AssertExpectations(t)
+	lfr.AssertExpectations(t)
+}
+
+func TestOrders_CreateCompetitorLaunch(t *testing.T) {
+	launchpad, lr := prepareLaunchpad(t)
+	destinations, dr := prepareDestinations()
+	lfr := prepareFirstDestinationRepo(launchpad.ID, destinations[0].ID, 2053, 3, 3)
+
+	userLocation, err := time.LoadLocation("Europe/Oslo")
+	require.NoError(t, err)
+	launchDate := time.Date(2053, 3, 5, 1, 0, 0, 0, userLocation)
+
+	o, or := prepareOrder(t, launchpad.ID, destinations[1].ID, launchDate)
+	clr := prepareCompetitorsLaunchesRepo(launchpad.ID, launchDate.In(launchpad.Location), true)
+
+	s := NewOrders(or, lr, dr, lfr, clr)
+
+	_, err = s.Create(context.TODO(), o)
+	require.Error(t, err)
+	require.True(t, errors.As(err, &types.ErrFlightImpossible{}))
+
+	lr.AssertExpectations(t)
+	dr.AssertExpectations(t)
+	lfr.AssertExpectations(t)
 	clr.AssertExpectations(t)
 }

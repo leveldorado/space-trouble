@@ -19,6 +19,7 @@ type ordersService interface {
 	Get(ctx context.Context, id string) (types.Order, error)
 	List(ctx context.Context, limit, offset int) ([]types.Order, error)
 	Delete(ctx context.Context, id string) error
+	Destinations(ctx context.Context) ([]types.Destination, error)
 }
 
 type HTTPEntry struct {
@@ -46,6 +47,7 @@ func (e *HTTPEntry) GetHandler() http.Handler {
 			r.Get("/{id}", e.getOrder)
 			r.Delete("/{id}", e.deleteOrder)
 		})
+		r.Get("/destinations", e.destinations)
 	})
 	return r
 }
@@ -197,4 +199,9 @@ func (e *HTTPEntry) respondError(ctx context.Context, err error, wr http.Respons
 			Warn("failed to write error response")
 		return
 	}
+}
+
+func (e *HTTPEntry) destinations(wr http.ResponseWriter, req *http.Request) {
+	destinations, err := e.os.Destinations(req.Context())
+	e.respond(req.Context(), destinations, err, http.StatusOK, wr)
 }

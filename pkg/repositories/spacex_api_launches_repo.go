@@ -25,7 +25,7 @@ func NewSpaceXAPILaunchesRepo(cl *http.Client) *SpaceXAPILaunchesRepo {
 	return &SpaceXAPILaunchesRepo{cl: cl}
 }
 
-type launchesRequestPayload struct {
+type queryRequestPayload struct {
 	Query   map[string]interface{} `json:"query"`
 	Options map[string]interface{} `json:"options"`
 }
@@ -67,7 +67,7 @@ func preparePayload(localDate time.Time, launchpad string) (*bytes.Buffer, error
 	year, month, day := localDate.Date()
 	startOfDate := time.Date(year, month, day, 0, 0, 0, 0, localDate.Location())
 	startOfNextDate := startOfDate.AddDate(0, 0, 1)
-	p := launchesRequestPayload{
+	p := queryRequestPayload{
 		Query: map[string]interface{}{
 			"date_local": map[string]interface{}{
 				"$gte": startOfDate,

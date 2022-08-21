@@ -14,7 +14,7 @@ type mockDestinationRepo struct {
 	mock.Mock
 }
 
-// List provides a mock function with given fields: ctx
+// ListSorted provides a mock function with given fields: ctx
 func (_m *mockDestinationRepo) ListSorted(ctx context.Context) ([]types.Destination, error) {
 	ret := _m.Called(ctx)
 

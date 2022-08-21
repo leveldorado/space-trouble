@@ -122,7 +122,7 @@ func TestOrdersList(t *testing.T) {
 	}
 	limit, offset := 10, 30
 	s := &mockOrdersService{}
-	s.On("ListSorted", mock.Anything, limit, offset).Return(orders, nil)
+	s.On("List", mock.Anything, limit, offset).Return(orders, nil)
 
 	h := NewHTTPEntry(s, &logrus.Logger{}).GetHandler()
 
@@ -184,5 +184,27 @@ func TestDeleteOrder(t *testing.T) {
 
 	require.Equal(t, http.StatusNoContent, resp.Code)
 
+	s.AssertExpectations(t)
+}
+
+func TestDestinations(t *testing.T) {
+	destinations := []types.Destination{
+		{
+			ID:   uuid.New().String(),
+			Name: gofakeit.Name(),
+		},
+	}
+	s := &mockOrdersService{}
+	s.On("Destinations", mock.Anything).Return(destinations, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/destinations", nil)
+	resp := httptest.NewRecorder()
+
+	NewHTTPEntry(s, logger.New()).GetHandler().ServeHTTP(resp, req)
+	require.Equal(t, http.StatusOK, resp.Code)
+
+	var received []types.Destination
+	require.NoError(t, json.Unmarshal(resp.Body.Bytes(), &received))
+	require.Equal(t, destinations, received)
 	s.AssertExpectations(t)
 }

@@ -175,3 +175,7 @@ func (s *Orders) List(ctx context.Context, limit, offset int) ([]types.Order, er
 func (s *Orders) Delete(ctx context.Context, id string) error {
 	return s.orderRepo.Delete(ctx, id)
 }
+
+func (s *Orders) Destinations(ctx context.Context) ([]types.Destination, error) {
+	return s.destinationRepo.ListSorted(ctx)
+}

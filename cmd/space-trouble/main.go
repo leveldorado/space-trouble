@@ -8,6 +8,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/leveldorado/space-trouble/pkg/migrations"
+
 	"github.com/leveldorado/space-trouble/pkg/repositories"
 	"github.com/sirupsen/logrus"
 
@@ -26,12 +28,20 @@ func main() {
 	cl := &http.Client{
 		Timeout: time.Second,
 	}
+	or := repositories.NewPostgreSQLOrdersRepo(conn, log)
+	lr := repositories.NewSpaceXAPILaunchpadsRepo(cl)
+	dr := repositories.NewInMemoryDestinationsRepo()
+	fr := repositories.NewInMemoryLaunchpadFirstDestinationRepo()
+
+	if err := migrations.Init(or, lr, dr, fr); err != nil {
+		log.WithField("err", err.Error()).Fatal("failed to do migration.Init")
+	}
 
 	s := services.NewOrders(
-		repositories.NewPostgreSQLOrdersRepo(conn, log),
-		repositories.NewSpaceXAPILaunchpadsRepo(cl),
-		repositories.NewInMemoryDestinationsRepo(),
-		repositories.NewInMemoryLaunchpadFirstDestinationRepo(),
+		or,
+		lr,
+		dr,
+		fr,
 		repositories.NewSpaceXAPILaunchesRepo(cl),
 	)
 

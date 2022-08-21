@@ -30,3 +30,31 @@ func TestSpaceXAPILaunchpadsRepo_Get(t *testing.T) {
 		Location: losAngelesTimezone,
 	}, pad)
 }
+
+func TestSpaceXAPILaunchpadsRepo_List(t *testing.T) {
+	newYorkTime, err := time.LoadLocation("America/New_York")
+	require.NoError(t, err)
+	losAndgelestime, err := time.LoadLocation("America/Los_Angeles")
+	require.NoError(t, err)
+	expected := []types.Launchpad{
+		{
+			ID:       "5e9e4501f509094ba4566f84",
+			FullName: "Cape Canaveral Space Force Station Space Launch Complex 40",
+			Location: newYorkTime,
+		},
+		{
+			ID:       "5e9e4502f509094188566f88",
+			FullName: "Kennedy Space Center Historic Launch Complex 39A",
+			Location: newYorkTime,
+		},
+		{
+			ID:       "5e9e4502f509092b78566f87",
+			FullName: "Vandenberg Space Force Base Space Launch Complex 4E",
+			Location: losAndgelestime,
+		},
+	}
+	r := NewSpaceXAPILaunchpadsRepo(http.DefaultClient)
+	resp, err := r.List(context.TODO())
+	require.NoError(t, err)
+	require.Equal(t, expected, resp)
+}

@@ -42,7 +42,7 @@ func prepareFirstDestinationRepo(lID, dID string, year, month, day int) *mockLau
 		LaunchpadID:   lID,
 		DestinationID: dID,
 		LocalYear:     year,
-		LocalMonth:    month,
+		LocalMonth:    time.Month(month),
 		LocalDay:      day,
 	}
 	lfd := &mockLaunchpadFirstDestinationRepo{}
@@ -73,7 +73,7 @@ func prepareOrder(t *testing.T, lID, dID string, launchDate time.Time) (types.Or
 
 func prepareCompetitorsLaunchesRepo(launchpad string, localDate time.Time) *mockCompetitorLaunchesRepo {
 	clr := &mockCompetitorLaunchesRepo{}
-	clr.On("ListByDate", mock.Anything, launchpad, localDate).Return([]types.Launch{}, nil)
+	clr.On("CheckLaunches", mock.Anything, launchpad, localDate).Return(false, nil)
 	return clr
 }
 
